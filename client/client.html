@@ -6,6 +6,87 @@
   
   <script>
 
+        window.onload = () => {
+
+            const userForm = document.querySelector('#userForm');
+            const nameForm = document.querySelector('#nameForm');
+            const content = document.querySelector('#content');
+            userForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const url = document.querySelector('#urlField').value;
+                const method = document.querySelector('#methodSelect').value.toUpperCase();
+                try {
+
+                    const response = await fetch(url, {
+                        method: method
+                    });
+                    content.innerHTML = `<p>Status: ${response.status}</p>`;
+
+                    if (method !== 'HEAD') {
+
+                        const data = await response.json();
+
+                        content.innerHTML += `
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        `;
+                    }
+
+
+                } catch (error) {
+
+                    content.innerHTML = `
+                        <p>Request failed.</p>
+                        <p>${error.message}</p>
+                    `;
+                }
+            });
+            nameForm.addEventListener('submit', async (e) => {
+
+                e.preventDefault();
+                const name = document.querySelector('#nameField').value;
+                const age = document.querySelector('#ageField').value;
+                try {
+
+                    const response = await fetch('/addUser', {
+
+                        method: 'POST',
+
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+
+                        body: JSON.stringify({
+                            name: name,
+                            age: age
+                        })
+                    });
+
+
+                    content.innerHTML = `<p>Status: ${response.status}</p>`;
+                    if (response.status === 204) {
+
+                        content.innerHTML += `
+                            <p>User updated successfully.</p>
+                        `;
+
+                        return;
+                    }
+                    const data = await response.json();
+
+                    content.innerHTML += `
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+
+
+                } catch (error) {
+                    content.innerHTML = `
+                        <p>Request failed.</p>
+                        <p>${error.message}</p>
+                    `;
+                }
+            });
+        };
+
   </script>
 </head>
 <body>
